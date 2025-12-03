@@ -14,6 +14,8 @@ import os, re
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
+plt.close('all')
+
 # from IPython.display import display, HTML
 
 
@@ -534,11 +536,40 @@ triplet_cell_inv = env.new_line(components=[
     env.place('QF_str_doublet')
 ])
 
-# 1/6th of the ring as a "transfer line"
-#  7 full arc cells --- suppressor cell 1(no bends) + suppressor cell 2(3 bends) --- straight cell 1 + straight cell 2 + straight cell 2 start to centre
-def make_transfer_line(idx):
+# # 1/6th of the ring as a "transfer line"
+# #  7 full arc cells --- suppressor cell 1(no bends) + suppressor cell 2(3 bends) --- straight cell 1 + straight cell 2 + straight cell 2 start to centre
+# def make_transfer_line(idx):
 
-    out = (
+#     out = (
+#         2 * arc_cell_1
+#         + arc_cell_SD_to_left
+#         + arc_cell_1
+#         + arc_cell_all_sext_before_quad
+#         + arc_cell_1
+#         + arc_cell_SF_to_left_of_last_quad
+#         + suppressor_cell_1_inv
+#         + suppressor_cell_2_inv
+#         + triplet_cell
+#     )
+#     return out
+
+
+# #transfer line inverted
+# def make_transfer_line_inv(idx):
+#     out = (
+#         triplet_cell_inv
+#         + suppressor_cell_2
+#         + suppressor_cell_1
+#         + arc_cell_SF
+#         + arc_cell_1
+#         + arc_cell_all_sext
+#         + arc_cell_1
+#         + arc_cell_SD
+#         + 2 * arc_cell_1
+#     )
+#     return out
+
+half_period = (
         2 * arc_cell_1
         + arc_cell_SD_to_left
         + arc_cell_1
@@ -549,60 +580,19 @@ def make_transfer_line(idx):
         + suppressor_cell_2_inv
         + triplet_cell
     )
-    return out
-    # return env.new_line(components=[
-    #     *[arc_cell_1 for i in range(2)],
-    #     *[arc_cell_SD_to_left for i in range(1)],
-    #     *[arc_cell_1 for i in range(1)],
-    #     *[arc_cell_all_sext_before_quad for i in range(1)],
-    #     *[arc_cell_1 for i in range(1)],
-    #     *[arc_cell_SF_to_left_of_last_quad for i in range(1)],
-    #     *[suppressor_cell_1_inv for i in range(1)],
-    #     *[suppressor_cell_2_inv for i in range(1)],
-    #     *[triplet_cell for i in range(1)],
-    # ])
 
-#transfer line inverted
-def make_transfer_line_inv(idx):
-    out = (
-        triplet_cell_inv
-        + suppressor_cell_2
-        + suppressor_cell_1
-        + arc_cell_SF
-        + arc_cell_1
-        + arc_cell_all_sext
-        + arc_cell_1
-        + arc_cell_SD
-        + 2 * arc_cell_1
-    )
-    return out
+full_period = half_period + (-half_period)
 
-transfer_line_one_sixth_ring = env.new_line(components=[
-     make_transfer_line(2),
- ])
+transfer_line_one_sixth_ring = half_period
 
-transfer_line_one_sixth_ring_inv = env.new_line(components=[
-    make_transfer_line_inv(2),])
-
-transfer_line_one_third_ring = env.new_line(components=[
-    make_transfer_line_inv(2), make_transfer_line(2)
-])
-
-# transfer_line_one_sixth_ring.build_tracker()
-# transfer_line_one_sixth_ring.configure_radiation(model='mean')
-# transfer_line_one_sixth_ring.compensate_radiation_energy_loss()
 
 transfer_line_one_sixth_ring.survey().plot()
 
 # Final transfer line length
 print(f"1/6th ring: {transfer_line_one_sixth_ring.get_length():.5f} m")
 
-prrr
 
 # %%
-print(len(transfer_line_one_third_ring.elements))
-for ele in transfer_line_one_third_ring.elements:
-    print(ele)
 
 arc_twiss = arc_cell_1.twiss(method='4d')
 
@@ -675,28 +665,34 @@ opt_disp_TL = transfer_line_one_sixth_ring.match(
         xt.Vary('KQF_str_doublet', step=1e-4),
         xt.Vary('KQD_str_doublet', step=1e-4),
         xt.Vary('kqf_arc_b', step=1e-4),
-        xt.Vary('kqf_sup',  step=1e-4),     
+        xt.Vary('kqf_sup',  step=1e-4),
         xt.Vary('KQF_str_triplet', step=1e-4),
         xt.Vary('KQD_str_triplet', step=1e-4),
     ],
     targets=[
-        xt.Target(dx=0.0, at='QF_str_doublet.triplet_2_0', tol=1e-6),                      
-        xt.Target(dpx=0.0, at='QF_str_doublet.triplet_2_0', tol=1e-6),                     
-        xt.Target(alfx=0.0, at='_end_point', tol=1e-6),
-        xt.Target(alfy=0.0, at='_end_point', tol=1e-6),
-        xt.Target(bety=3.0, at='wig1_short_10.straight_wig1.triplet_2_0', tol=1e-6),  
-        xt.Target(betx=3.0, at='wig1_short_10.straight_wig1.triplet_2_0', tol=1e-6),
-        xt.Target(bety=3.0, at='marker_str_triplet_40pct.triplet_2_0::1', tol=1e-6),
-        xt.Target(betx=3.0, at='marker_str_triplet_40pct.triplet_2_0::1', tol=1e-6),
+        xt.Target(dx=0.0, at='_end_point', tol=1e-6, tag='end'),
+        xt.Target(dpx=0.0, at='_end_point', tol=1e-6, tag='end'),
+        xt.Target(alfx=0.0, at='_end_point', tol=1e-6, tag='end', weight=100),
+        xt.Target(alfy=0.0, at='_end_point', tol=1e-6, tag='end', weight=100),
+
+        xt.Target(bety=xt.LessThan(3.0), at='wig1_short_9.straight_wig1', tol=1e-6, tag='ineq'),
+        xt.Target(betx=xt.LessThan(3.0), at='wig1_short_9.straight_wig1', tol=1e-6, tag='ineq'),
+        xt.Target(bety=xt.LessThan(3.0), at='marker_str_triplet_970pct::0', tol=1e-6, tag='ineq'),
+        xt.Target(betx=xt.LessThan(3.0), at='marker_str_triplet_970pct::0', tol=1e-6, tag='ineq'),
+        xt.Target(alfy=0.0, at='wig1_short_9.straight_wig1', tol=1e-6, tag='alf_mid', weight=100),
+        xt.Target(alfx=0.0, at='wig1_short_9.straight_wig1', tol=1e-6, tag='alf_mid', weight=100),
+        xt.Target(alfy=0.0, at='marker_str_triplet_970pct::0', tol=1e-6, tag='alf_mid', weight=100),
+        xt.Target(alfx=0.0, at='marker_str_triplet_970pct::0', tol=1e-6, tag='alf_mid', weight=100),
     ]
 )
 
-opt_disp_TL.target_status()
-opt_disp_TL.run_jacobian(30)
-opt_disp_TL.target_status()
-opt_disp_TL.vary_status()
 
+opt_disp_TL.target_status()
 
+opt_disp_TL.run_jacobian(20)
+
+opt_disp_TL.disable(target=['ineq', 'alf_mid'])
+opt_disp_TL.run_jacobian(20)
 
 # Optics inspection
 tw_TL = transfer_line_one_sixth_ring.twiss(betx=arc_twiss_init.betx,
@@ -713,21 +709,17 @@ pl = tw_TL.plot()
 pl.ylim(left_hi=25, right_lo=-0.5, right_hi=1.0,
         lattice_hi=1.5, lattice_lo=-7)
 
-
-
 # %%
 
 # full ring assembly
 RING = env.new_line(components=[
-    transfer_line_one_sixth_ring_inv.replicate ('TL1'),
-    transfer_line_one_sixth_ring.replicate ('TL2'),
-    transfer_line_one_sixth_ring_inv.replicate ('TL3'),
-    transfer_line_one_sixth_ring.replicate ('TL4'),
-    transfer_line_one_sixth_ring_inv.replicate ('TL5'),
-    transfer_line_one_sixth_ring.replicate ('TL6'),
+    half_period,
+    -half_period,
+    half_period,
+    -half_period,
+    half_period,
+    -half_period,
 ])
-
-RING.replace_all_replicas()
 RING.replace_all_repeated_elements()
 
 
@@ -760,8 +752,6 @@ opt_chroma = RING.match(
     vary=[
         xt.Vary('k2_sf', step=1e-3),
         xt.Vary('k2_sd', step=1e-3)
-        
-        
     ],
     targets=[
         xt.Target(dqx=0.0, tol=1e-6),
