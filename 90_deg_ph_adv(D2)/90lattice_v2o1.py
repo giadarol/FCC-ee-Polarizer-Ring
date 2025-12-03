@@ -534,37 +534,48 @@ triplet_cell_inv = env.new_line(components=[
     env.place('QF_str_doublet')
 ])
 
-prrrr
-
-
 # 1/6th of the ring as a "transfer line"
 #  7 full arc cells --- suppressor cell 1(no bends) + suppressor cell 2(3 bends) --- straight cell 1 + straight cell 2 + straight cell 2 start to centre
 def make_transfer_line(idx):
-    return env.new_line(components=[
-        *[arc_cell_1.replicate(f'arc_{idx}_cell_{i}') for i in range(2)],
-        *[arc_cell_SD_to_left.replicate(f'arc_{idx}_cell_{i}') for i in range(1)],
-        *[arc_cell_1.replicate(f'arc_{idx}_cell_{i}') for i in range(1)],
-        *[arc_cell_all_sext_before_quad.replicate(f'arc_{idx}_cell_{i}') for i in range(1)],
-        *[arc_cell_1.replicate(f'arc_{idx}_cell_{i}') for i in range(1)],
-        *[arc_cell_SF_to_left_of_last_quad.replicate(f'arc_{idx}_cell_{i}') for i in range(1)],
-        *[suppressor_cell_1_inv.replicate(f'sup_start_{idx}_{i}') for i in range(1)],
-        *[suppressor_cell_2_inv.replicate(f'sup_start_{idx}_{i}') for i in range(1)],
-        *[triplet_cell.replicate(f'triplet_{idx}_{i}') for i in range(1)],
-    ])
+
+    out = (
+        2 * arc_cell_1
+        + arc_cell_SD_to_left
+        + arc_cell_1
+        + arc_cell_all_sext_before_quad
+        + arc_cell_1
+        + arc_cell_SF_to_left_of_last_quad
+        + suppressor_cell_1_inv
+        + suppressor_cell_2_inv
+        + triplet_cell
+    )
+    return out
+    # return env.new_line(components=[
+    #     *[arc_cell_1 for i in range(2)],
+    #     *[arc_cell_SD_to_left for i in range(1)],
+    #     *[arc_cell_1 for i in range(1)],
+    #     *[arc_cell_all_sext_before_quad for i in range(1)],
+    #     *[arc_cell_1 for i in range(1)],
+    #     *[arc_cell_SF_to_left_of_last_quad for i in range(1)],
+    #     *[suppressor_cell_1_inv for i in range(1)],
+    #     *[suppressor_cell_2_inv for i in range(1)],
+    #     *[triplet_cell for i in range(1)],
+    # ])
 
 #transfer line inverted
 def make_transfer_line_inv(idx):
-    return env.new_line(components=[
-        *[triplet_cell_inv.replicate(f'triplet_{idx}_{i}') for i in range(1)],
-        *[suppressor_cell_2.replicate(f'sup_start_{idx}_{i}') for i in range(1)],
-        *[suppressor_cell_1.replicate(f'sup_start_{idx}_{i}') for i in range(1)],
-        *[arc_cell_SF.replicate(f'arc_{idx}_cell_{i}') for i in range(1)],
-        *[arc_cell_1.replicate(f'arc_{idx}_cell_{i}') for i in range(1)],
-        *[arc_cell_all_sext.replicate(f'arc_{idx}_cell_{i}') for i in range(1)],
-        *[arc_cell_1.replicate(f'arc_{idx}_cell_{i}') for i in range(1)],
-        *[arc_cell_SD.replicate(f'arc_{idx}_cell_{i}') for i in range(1)],
-        *[arc_cell_1.replicate(f'arc_{idx}_cell_{i}') for i in range(2)],
-    ])
+    out = (
+        triplet_cell_inv
+        + suppressor_cell_2
+        + suppressor_cell_1
+        + arc_cell_SF
+        + arc_cell_1
+        + arc_cell_all_sext
+        + arc_cell_1
+        + arc_cell_SD
+        + 2 * arc_cell_1
+    )
+    return out
 
 transfer_line_one_sixth_ring = env.new_line(components=[
      make_transfer_line(2),
