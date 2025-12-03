@@ -218,7 +218,6 @@ env.new('dr_full_str_between_two_triplet_pairs', xt.Drift, length='d_full_str_be
 env['d_full_str_between_two_triplet_pairs_half'] = (env['d_full_str_between_two_triplet_pairs'] / 8 ) 
 env.new('dr_full_str_between_two_triplet_pairs_half', xt.Drift, length='d_full_str_between_two_triplet_pairs_half')
 
-prrrrr
 
 # adding markers in the 2nd drift of the straight section (the one which does not host wigglers; and is proposed to host rf)
 L = env['d_full_str_between_two_triplet_pairs_half']
@@ -232,7 +231,7 @@ for i in range(n_slices):
     drift_name = f"dr_str_triplet_slice_{i+1}"
     env.new(drift_name, xt.Drift, length=slice_length)
     new_drifts_with_markers.append(env.place(drift_name))
-    
+
     # Add marker *after* drift, but only if not the last drift
     if i < n_slices - 1:
         marker_name = f"marker_str_triplet_{(i+1)*10}pct"
@@ -323,28 +322,27 @@ def build_wiggler(name_prefix, n_periods, length_short, B_short, ratio, env):
 
     # First half-period (half of short segment)
     name = f"{name_prefix}half_of_short_start"
-    
 
-    env.new(name, xt.RBend, length=length_short/2, h=0, k0=theta_short/length_short, k0_from_h=False)
+    env.new(name, xt.RBend, length_straight=length_short/2, angle=0, k0=theta_short/length_short, k0_from_h=False)
     segments.append(env.place(name))
 
     # Full periods
     for i in range(n_periods):
         # Long segment
         name = f"{name_prefix}_long_{i}"
-        env.new(name, xt.RBend, length=length_long, h=0, k0=-theta_long/length_long, k0_from_h=False)
+        env.new(name, xt.RBend, length_straight=length_long, angle=0, k0=-theta_long/length_long, k0_from_h=False)
         segments.append(env.place(name))
 
         # Short segment (except for the last period)
         if i < n_periods - 1:
             name = f"{name_prefix}_short_{i+1}"
-            env.new(name, xt.RBend, length=length_short, h=0, k0=theta_short/length_short, k0_from_h=False)
+            env.new(name, xt.RBend, length_straight=length_short, angle=0, k0=theta_short/length_short, k0_from_h=False)
             segments.append(env.place(name))
 
     # Last half-period (half of short segment)
     name = f"{name_prefix}half_of_short_end"
 
-    env.new(name, xt.RBend, length=length_short/2, h=0 , k0=theta_short/length_short, k0_from_h=False)
+    env.new(name, xt.RBend, length_straight=length_short/2, angle=0 , k0=theta_short/length_short, k0_from_h=False)
     segments.append(env.place(name))
 
     return env.new_line(components=segments)
@@ -457,6 +455,7 @@ arc_cell_SD_to_left = env.new_line(components=[
 ])
 
 
+
 # suppressor cell 1 (0 dipoles, 2 drifts)
 # half QF_sup - drift - QD_sup_b - drift - half QF_arc
 suppressor_cell_1 = env.new_line(components=[
@@ -478,7 +477,6 @@ suppressor_cell_1_inv = env.new_line(components=[
 # suppressor cell 2 (2 dipoles, 4 drifts)
 # half QF_str_a – drift – bend – drift – QD_sup_a - drift - bend - drift - half QF_arc
 suppressor_cell_2 = env.new_line(components=[
-    
     env.place('dr_sup3') , env.place('mb') ,
     env.place('dr_sup2') ,
     env.place('qd_sup_a') , env.place('dr_sup1'), env.place('half_qf_sup')
@@ -513,10 +511,9 @@ triplet_cell = env.new_line(components=[
     *new_drifts_with_markers,
     env.place('QD_str_triplet'),
     env.place('dr_between_quads_triplet'),
-    env.place('half_QF_str_triplet'), 
+    env.place('half_QF_str_triplet'),
 ])
-  
-  
+
 triplet_cell_inv = env.new_line(components=[
     env.place('half_QF_str_triplet'),
     env.place('dr_between_quads_triplet'),
@@ -528,7 +525,7 @@ triplet_cell_inv = env.new_line(components=[
     env.place('dr_between_quads_triplet'),
     env.place('QF_str_triplet'),
     env.place('dr_between_quads_triplet'),
-    env.place('QD_str_triplet'),    
+    env.place('QD_str_triplet'),
     *new_drifts_with_markers_wig,
     wiggler_section_3.replicate('straight_wig3'),
     *new_drifts_with_markers_wig,
@@ -536,6 +533,8 @@ triplet_cell_inv = env.new_line(components=[
     env.place('dr_between_quads_triplet'),
     env.place('QF_str_doublet')
 ])
+
+prrrr
 
 
 # 1/6th of the ring as a "transfer line"
@@ -587,7 +586,7 @@ transfer_line_one_sixth_ring.survey().plot()
 # Final transfer line length
 print(f"1/6th ring: {transfer_line_one_sixth_ring.get_length():.5f} m")
 
-
+prrr
 
 # %%
 print(len(transfer_line_one_third_ring.elements))
