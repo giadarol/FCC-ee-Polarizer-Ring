@@ -9,12 +9,12 @@ import pandas as pd
 import xfields as xf
 import scipy.constants as sc
 import matplotlib.colors as mcolors
-%matplotlib widget
+# %matplotlib widget
 import os, re
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-from IPython.display import display, HTML
+# from IPython.display import display, HTML
 
 
 # Ring layout:
@@ -55,7 +55,7 @@ env.new('half_qf_arc', xt.Quadrupole, length=env['l_quad'] / 2, k1='kqf_arc')
 env.new('half_qd_arc', xt.Quadrupole, length=env['l_quad'] / 2, k1='kqd_arc')
 
 
-env.new('mb', xt.RBend, length='l_dipole', angle='ang_mb', k0_from_h=True)
+env.new('mb', xt.RBend, length_straight='l_dipole', angle='ang_mb', k0_from_h=True)
 
 
 #  Arc cell ( 2 dipoles, 4 drifts)
@@ -65,19 +65,23 @@ arc_cell = env.new_line(components=[
     env.place('dr_arc'), env.place('mb'),
     env.place('dr_arc'),
     env.place('qd_arc'), env.place('dr_arc'),env.place('mb'),
-     env.place('dr_arc'), env.place('half_qf_arc')
+    env.place('dr_arc'), env.place('half_qf_arc')
 ])
 
+# orrrr
 
-def make_arc_cell(idx):
-    return env.new_line(components=[
+# def make_arc_cell(idx):
+#     return env.new_line(components=[
 
-        *[arc_cell.replicate(f'arc_{idx}_cell_{i}') for i in range(1)],
+#         *[arc_cell.replicate(f'arc_{idx}_cell_{i}') for i in range(idx)],
 
-    ])
+#     ])
 
-arc_cell_comp = make_arc_cell(1)
-#arc_cell_comp.survey().plot()
+# arc_cell_comp = make_arc_cell(1)
+#
+
+arc_cell_comp = arc_cell.copy(shallow=True)
+
 
 my_twiss = arc_cell_comp.twiss4d()
 my_twiss.plot()
@@ -165,10 +169,7 @@ env.new('QD_str_doublet', 'mq', k1='KQD_str_doublet', length=env['l_quad'])
 env.new('half_QD_str_doublet', xt.Quadrupole, length=env['l_quad'] / 2, k1='KQD_str_doublet')
 
 
-
-#sextupoles 
-
-env['l_sext'] = 0.15  # [m] 
+env['l_sext'] = 0.15  # [m]
 l_sext = env['l_sext']
 
 env['k2_sf'] = 5.0
@@ -177,8 +178,6 @@ env['k2_sd'] = -5.0
 
 env.new('sf', xt.Sextupole, k2='k2_sf', length=l_sext)
 env.new('sd', xt.Sextupole, k2='k2_sd', length=l_sext)
-
-
 
 # drift element definitions
 
@@ -194,10 +193,10 @@ env['d_sup1'] =(env['l_fodo'] - 2 * env['l_quad']) / 2
 env.new('dr_sup1' , xt.Drift , length='d_sup1')
 
 #drift in the suppressor cell 2
-env['d_sup2'] =  (env['l_fodo'] - 2 * env['l_dipole'] - 1.5 * env['l_quad']) / 4  
+env['d_sup2'] =  (env['l_fodo'] - 2 * env['l_dipole'] - 1.5 * env['l_quad']) / 4
 env.new('dr_sup2' , xt.Drift , length='d_sup2')
 
-env['d_sup3'] = 0.5 + (env['l_fodo'] - 2 * env['l_dipole'] - 1.5 * env['l_quad']) / 4  
+env['d_sup3'] = 0.5 + (env['l_fodo'] - 2 * env['l_dipole'] - 1.5 * env['l_quad']) / 4
 env.new('dr_sup3' , xt.Drift , length='d_sup3')
 #drift in the straight cell
 env['d_str'] = (env['l_fodo'] - 2 * env['l_quad']) / 2
@@ -219,6 +218,7 @@ env.new('dr_full_str_between_two_triplet_pairs', xt.Drift, length='d_full_str_be
 env['d_full_str_between_two_triplet_pairs_half'] = (env['d_full_str_between_two_triplet_pairs'] / 8 ) 
 env.new('dr_full_str_between_two_triplet_pairs_half', xt.Drift, length='d_full_str_between_two_triplet_pairs_half')
 
+prrrrr
 
 # adding markers in the 2nd drift of the straight section (the one which does not host wigglers; and is proposed to host rf)
 L = env['d_full_str_between_two_triplet_pairs_half']
